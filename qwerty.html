@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            class Students {
+                constructor(name) {
+                    this.name = name;
+                    this.notes = [];
+                    this.texT = [];
+                }
+                addNote(note, text) {
+                    this.notes.add(note);
+                    this.texT.add(text)
+                }
+            }
+
+
+            let students = [];
+            let studentList = document.querySelector(".body_std");
+            let activeStudent = null;
+            let activeNote = null;
+
+            let studentForm = {
+                name: document.querySelector(".input_std"),
+                addBtn: document.querySelector(".add_std"),
+            }
+
+            function getStd() {
+                let name = studentForm.name.value;
+                if (name.trim() == '') {
+                    alert("Input student");
+                    return;
+                }
+                students.push(new Students(name))
+                showStudents(students);
+            }
+
+            function createStdElem(student, i) {
+                let studentElem = document.createElement('div');
+                studentElem.classList.add('std');
+
+                if (student == activeStudent) {
+                    studentElem.classList.add('active');
+                }
+                studentElem.dataset.index = i;
+
+                let remove_std = document.createElement('div');
+                remove_std.innerHTML = "&#10060;";
+                remove_std.classList.add('remove_std');
+
+                let note_std = document.createElement('div');
+                note_std.innerHTML = "&#10003;";
+                note_std.classList.add('note_std');
+
+                studentElem.append(`${student.name}`);
+                studentElem.append(remove_std, note_std);
+
+                return studentElem;
+            }
+
+            function showStudents() {
+                studentList.innerHTML = "";
+                let studentElems = students.map((s, i) => createStdElem(s, i))
+                studentList.append(...studentElems);
+            }
+
+
+            studentForm.addBtn.addEventListener('click', () => getStd())
+            studentList.addEventListener('click', (e) => {
+                if (!e.target.matches('.note_std')) return;
+                let index = e.target.parentNode.dataset.index;
+                activeStudent = students[index];
+                showStudents(students);
+                activeNote = null;
+                showNoteStd(activeStudent);
+            })
+
+            studentList.addEventListener('click', (e) => {
+                if (!e.target.matches('.remove_std')) return;
+                let index = e.target.parentNode.dataset.index;
+                students.splice(index, 1);
+                showStudents();
+                main_note.innerHTML = '';
+                main_text.innerHTML = '';
+            })
+
+            function showNoteStd() {
+                let noteElem = activeStudent.notes.map((n, i) => createNoteElem(n, i))
+                main_note.innerHTML = '';
+                main_note.append(...noteElem);
+                main_note.style.display = "block";
+
+                let textElem = activeStudent.texT.map((n, i) => createTextElem(n, i))
+                main_text.innerHTML = '';
+                main_text.append(...textElem);
+            }
+
+            let main_note = document.querySelector('.in_note');
+            let main_text = document.querySelector('.text');
+
+            function createNoteElem(note, i) {
+                let studentNote = document.createElement('li');
+                studentNote.classList.add('std_note');
+
+                if (i == activeNote) {
+                    studentNote.classList.add('active');
+                }
+
+                studentNote.dataset.iiindex = i;
+
+                let remove_note = document.createElement('div');
+                remove_note.innerHTML = "&#10060;";
+                remove_note.classList.add('remove_note');
+
+                let note_text = document.createElement('div');
+                note_text.innerHTML = "&#10003;";
+                note_text.classList.add('note_text');
+
+                studentNote.append(`${note}`);
+                studentNote.append(remove_note, note_text);
+
+                return studentNote;
+            }
+
+            function createTextElem(note, i) {
+                let text = document.createElement('div');
+                text.classList.add('noteText');
+
+                if (i == activeNote) {
+                    text.style.display = 'block';
+                }
+                text.dataset.index_text = i;
+                text.append(`${note}`);
+                return text;
+            }
+
+
+            let noteForm = {
+                input_note: document.querySelector(".input_note"),
+                addBtnNote: document.querySelector(".add_note"),
+                input_text: document.querySelector(".input_text")
+            }
+
+            noteForm.addBtnNote.addEventListener('click', () => {
+                if (activeStudent == null) return;
+                if (noteForm.input_note.value.trim() == '') {
+                    alert("Input note");
+                    return;
+                }
+                if (noteForm.input_text.value.trim() == '') {
+                    alert("Input text for note");
+                    return;
+                }
+                activeStudent.notes.push(noteForm.input_note.value)
+                activeStudent.texT.push(noteForm.input_text.value)
+                showNoteStd()
+            });
+
+            let textBox = document.querySelector(".text")
+
+            main_note.addEventListener('click', (e) => {
+                if (!e.target.matches('.note_text')) return;
+                let indexN = e.target.parentNode.dataset.iiindex;
+                activeNote = indexN;
+                showNoteStd();
+            })
+
+            main_note.addEventListener('click', (e) => {
+                if (!e.target.matches('.remove_note')) return;
+                let indexN = e.target.parentNode.dataset.iiindex;
+                activeStudent.notes.splice(indexN, 1);
+                activeStudent.texT.splice(indexN, 1);
+                showNoteStd();
+            })
+
+        });
+    </script>
+
+    <style>
+        .active {
+            color: rgb(251, 255, 0);
+        }
+
+        .blok {
+            display: block;
+        }
+
+        .off {
+            display: none;
+        }
+
+        .main {
+            width: 100%;
+            margin: auto;
+            display: flex;
+            padding-right: 50px;
+        }
+
+        .students,
+        .note,
+        .text {
+            width: 500px;
+            background-color: rgb(209, 209, 209);
+            border: black 1px solid;
+            font-size: 36px;
+            color: white;
+            border-radius: 5px;
+            margin-left: 20px;
+        }
+
+        .head_std {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+
+        .head_note {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .body_std,
+        .body_note {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .input_std {
+            width: 200px;
+            height: 50px;
+            border-radius: 40px;
+        }
+
+        .input_note {
+            width: 200px;
+            height: 50px;
+            border-radius: 40px;
+        }
+
+        .input_text {
+            margin: auto;
+            width: 90%;
+            height: 50px;
+            border-radius: 40px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .add_note {
+            width: 75px;
+            height: 50px;
+            border-radius: 40px;
+        }
+
+        .add_std {
+            width: 75px;
+            height: 50px;
+            border-radius: 40px;
+        }
+
+        .std,
+        .std_note {
+            cursor: pointer;
+            width: 300px;
+            border: 2px solid grey;
+            margin: auto;
+            margin-top: 30px;
+            background-color: rgb(59, 201, 147);
+            text-align: left;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .remove_std,
+        .remove_note {
+            cursor: pointer;
+            margin-left: 210px;
+            position: absolute;
+        }
+
+        .note_std,
+        .note_text {
+            margin-right: 10px;
+        }
+
+        .stylee {
+            display: flex;
+        }
+
+        .noteText {
+            display: none;
+            margin: auto;
+            width: 90%;
+            height: 90%;
+            background: white;
+            border: 2px solid black;
+            color: black;
+            border-radius: 5px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <b>
+        <div class="main">
+            <div class="students">
+                <div class="head_std">
+                    <input type="text" class="input_std">
+                    <button class="add_std"><b>ADD</b></button>
+                </div>
+                <div class="body_std">
+                </div>
+            </div>
+
+            <div class="note">
+                <div class="head_note">
+                    <div style="display: flex; flex-direction: row; justify-content: space-around;">
+                        <input type="text" class="input_note">
+                        <button class="add_note"><b>ADD</b></button>
+                    </div>
+                    <input type="text" class="input_text">
+                </div>
+
+                <div class="in_note"></div>
+            </div>
+
+            <div class="text stylee">
+
+            </div>
+        </div>
+    </b>
+</body>
+
+</html>
